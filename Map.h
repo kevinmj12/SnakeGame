@@ -34,4 +34,5 @@ public:
     void updateSnake(Snake &snake);
     void getInput(Snake &snake);
     void printMap();
+    bool isCrashWithWall(Position head);
 };

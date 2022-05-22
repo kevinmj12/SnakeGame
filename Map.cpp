@@ -31,6 +31,22 @@ void Map::initMap() {
     refresh();
 }
 
+bool Map::isCrashWithWall(Position head) {
+    bool crash = false;
+    int headRow = head.row;
+    int headCol = head.col;
+    for (int i=0; i<20; i++) {
+        for (int j=0; j<40; j++) {
+            if (board[i][j] == '1') {
+                if (headRow == i && headCol == j) {
+                    return true;
+                }
+            }
+        }
+    }
+    return crash;
+}
+
 void Map::getInput(Snake &snake) {
     // **** 입력을 안 하면 그냥 넘어감 halfdelay() ****
     halfdelay(2);
@@ -41,24 +57,25 @@ void Map::getInput(Snake &snake) {
         }
         else {
             cout << "GAME OVER" << endl;
+            terminate();
         }
     }
     else if (userInput == KEY_DOWN) {
         if (snake.getDirection() != 'u') {
             snake.setDirection('d');
-
         }
         else {
             cout << "GAME OVER" << endl;
+            terminate();
         }
     }
     else if (userInput == KEY_LEFT) {
         if (snake.getDirection() != 'r') {
             snake.setDirection('l');
-
         }
         else {
             cout << "GAME OVER" << endl;
+            terminate();
         }
     }
     else if (userInput == KEY_RIGHT) {
@@ -67,6 +84,7 @@ void Map::getInput(Snake &snake) {
         }
         else {
             cout << "GAME OVER" << endl;
+            terminate();
         }
     }
 }
@@ -85,6 +103,10 @@ void Map::updateSnake(Snake &snake) {
         snake.location.insert(snake.location.begin(), Position(snake.location[0].row + 1, snake.location[0].col));
     }
     snake.location.pop_back();
+    if (snake.isCrashMySelf() || isCrashWithWall(snake.location[0])) {
+        cout << "game Over" << endl;
+        terminate();
+    }
 
     // paint head
     int r = snake.location[0].row;

@@ -21,28 +21,19 @@ int main() {
     init_pair(2, COLOR_WHITE, COLOR_WHITE); // wall - white
     init_pair(3, COLOR_CYAN, COLOR_CYAN); // wall corner - cyan
     init_pair(4, COLOR_YELLOW, COLOR_YELLOW); // snake head
-    init_pair(5, COLOR_BLUE, COLOR_BLUE); // snake body
+    init_pair(5, COLOR_GREEN, COLOR_GREEN); // snake body
     
     keypad(stdscr, TRUE);
     curs_set(0);
     noecho();
 
-    // thread
-    // thread t1(&Map::getInput, map);
-    // thread t2(&Map::updateSnake, map, *snake);
-
     // init map
     map->initMap();
 
-    // map->getInput(*snake);
-    map->updateSnake(*snake);
-    
-    // 무한으로 사용자 입력 받음
-    map->getInput(*snake);
-
-
+    while (true) {
+        map->updateSnake(*snake);
+        map->getInput(*snake);
+    }
     getch();
     endwin();
-
-    // 🔳🔲 🔴🔵🔳🔲🔶🔷🔘💛💚💙💜🖤💥💣
 }

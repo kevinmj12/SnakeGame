@@ -7,13 +7,14 @@ class Snake {
 private:
     int locationRow;
     int locationCol;
-    int length = 3;
+    int length = 5;
     char direction;
     // vector<Position> location;
 public:
     Snake(char dir);
     vector<Position> location;
 
+    bool isCrashMySelf();
     void setDirection(char dir) {
         direction = dir;
     }

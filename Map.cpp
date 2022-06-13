@@ -3,10 +3,15 @@
 #include <vector>
 #include <time.h>
 // #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 using namespace std;
 
 extern int userInput;
+extern int appleCount;
+extern int poisonCount;
 
 void Map::initMap() {
     for (int i=0; i<25; i++) {
@@ -106,6 +111,8 @@ void Map::getInput(Snake &snake) {
 }
 
 void Map::updateSnake(Snake &snake) {
+
+
     if (snake.getDirection() == 'l') {
         snake.location.insert(snake.location.begin(), Position(snake.location[0].row, snake.location[0].col - 2));
     }
@@ -124,17 +131,40 @@ void Map::updateSnake(Snake &snake) {
         terminate();
     }
 
+
     // paint head
     int r = snake.location[0].row;
     int c = snake.location[0].col;
+    // 머리가 아이템이랑 부딪혔나?
+    // int r = snake.location[0].row;
+    // int c = snake.location[0].col;
     attron(COLOR_PAIR(4));
-    board[r][c] = '3'; 
+    board[r][c] = '3';
     board[r][c+1] = '3';
     mvprintw(r, c, "3");
     mvprintw(r, c+1, "3");
     attroff(COLOR_PAIR(4));
 
-    for (int i=1; i<snake.getLength()+1; i++) {
+    if (r == appleLocation.first && c == appleLocation.second) {
+        snake.eatApple(appleLocation.first, appleLocation.second);
+        appleCount--;
+    }
+    if (r == poisonLocation.first && c == poisonLocation.second) {
+        r = snake.location[snake.location.size()-1].row;
+        c = snake.location[snake.location.size()-1].col;
+        attron(COLOR_PAIR(1));
+        board[r][c] = '0';
+        board[r][c+1] = '0';
+        mvprintw(r, c, "0"); 
+        mvprintw(r, c+1, "0");
+        attroff(COLOR_PAIR(1));
+        snake.eatPoison(poisonLocation.first, poisonLocation.second);
+        poisonCount--;
+    }
+    
+
+    // 몸통 출력
+    for (int i=1; i<snake.getLength(); i++) {
         r = snake.location[i].row;
         c = snake.location[i].col;
         attron(COLOR_PAIR(5));
@@ -149,10 +179,15 @@ void Map::updateSnake(Snake &snake) {
     // 잔상 삭제
     attron(COLOR_PAIR(1));
     board[r][c] = '0';
-    board[r][c+1] = '0'; 
+    board[r][c+1] = '0';
     mvprintw(r, c, "0"); 
     mvprintw(r, c+1, "0");
     attroff(COLOR_PAIR(1));
+
+    if (snake.getLength() == 4) {
+        cout << "GAME OVER" << endl;
+        terminate();
+    }
 
     // 0.5초 대기
     // usleep(500000);
@@ -164,5 +199,118 @@ void Map::printMap() {
             cout << board[i][j];
         }
         cout << endl;
+    }
+}
+
+
+time_t appleStart;
+time_t poisonStart;
+void Map::generateApple(Snake &snake) {
+    srand(time(NULL));
+    bool ableToGenerate = false;
+    int r, c;
+
+    time_t now = time(NULL);
+
+    if (appleCount == 1 && (double)(now - appleStart) > 5) {
+        attron(COLOR_PAIR(1));
+        r = appleLocation.first;
+        c = appleLocation.second;
+        board[r][c] = '0';
+        board[r][c+1] = '0';
+        mvprintw(r, c, "0"); 
+        mvprintw(r, c+1, "0");
+        attroff(COLOR_PAIR(1));
+        ableToGenerate = false;
+        appleCount--;
+    }
+
+    if (appleCount < 1) {
+        while (!ableToGenerate) {
+            r = rand() % 23 + 1;
+            c = rand() % 46 + 1;
+            if (c % 2 != 0) {
+                c++;
+            }
+
+            for (int i=0; i<snake.location.size(); i++) {
+                if (r != snake.location[i].row && c != snake.location[i].col) {
+                    ableToGenerate = true;
+                }
+                else {
+                    ableToGenerate = false;
+                    break;
+                }
+            }
+            if (r == poisonLocation.first && c == poisonLocation.second) {
+                ableToGenerate = false;
+            }
+        }
+        attron(COLOR_PAIR(4));
+        board[r][c] = '5';
+        board[r][c+1] = '5';
+        mvprintw(r, c, "5");
+        mvprintw(r, c+1, "5");
+        attroff(COLOR_PAIR(4));
+        appleCount++;
+
+        appleLocation.first = r;
+        appleLocation.second = c;
+        appleStart = time(NULL);
+    }
+}
+
+void Map::generatePoison(Snake &snake) {
+    // srand(time(NULL));
+    bool ableToGenerate = false;
+    int r, c;
+
+    time_t now = time(NULL);
+
+    if (poisonCount == 1 && (double)(now - poisonStart) > 5) {
+        attron(COLOR_PAIR(1));
+        r = poisonLocation.first;
+        c = poisonLocation.second;
+        board[r][c] = '0';
+        board[r][c+1] = '0';
+        mvprintw(r, c, "0"); 
+        mvprintw(r, c+1, "0");
+        attroff(COLOR_PAIR(1));
+        ableToGenerate = false;
+        poisonCount--;
+    }
+
+    if (poisonCount < 1) {
+        while (!ableToGenerate) {
+            r = rand() % 23 + 1;
+            c = rand() % 46 + 1;
+            if (c % 2 != 0) {
+                c++;
+            }
+
+            for (int i=0; i<snake.location.size(); i++) {
+                if (r != snake.location[i].row && c != snake.location[i].col) {
+                    ableToGenerate = true;
+                }
+                else {
+                    ableToGenerate = false;
+                    break;
+                }
+            }
+            if (r == appleLocation.first && c == appleLocation.second) {
+                ableToGenerate = false;
+            }
+        }
+        attron(COLOR_PAIR(3));
+        board[r][c] = '3'; 
+        board[r][c+1] = '3';
+        mvprintw(r, c, "3");
+        mvprintw(r, c+1, "3");
+        attroff(COLOR_PAIR(3));
+        poisonCount++;
+
+        poisonLocation.first = r;
+        poisonLocation.second = c;
+        poisonStart = time(NULL);
     }
 }

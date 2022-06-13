@@ -36,10 +36,13 @@ public:
     void move_left() {
         locationCol--;
     }
-    void eatApple() {
+    void eatApple(int appleR, int appleC) {
         length++;
+        location.insert(location.end(), Position(location[location.size()-1].row, location[location.size()-1].col));
+        
     }
-    void eatPoision() {
+    void eatPoison(int poisonR, int poisonC) {
+        location.erase(location.end()-1);
         length--;
     }
 };

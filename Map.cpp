@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Map.h"
 #include <vector>
+#include <time.h>
 // #include <unistd.h>
 
 using namespace std;
@@ -8,8 +9,8 @@ using namespace std;
 extern int userInput;
 
 void Map::initMap() {
-    for (int i=0; i<20; i++) {
-        for (int j=0; j<40; j++) {
+    for (int i=0; i<25; i++) {
+        for (int j=0; j<50; j++) {
             if (board[i][j] == '0') {
                 attron(COLOR_PAIR(1));
                 printw("0");
@@ -35,8 +36,8 @@ bool Map::isCrashWithWall(Position head) {
     bool crash = false;
     int headRow = head.row;
     int headCol = head.col;
-    for (int i=0; i<20; i++) {
-        for (int j=0; j<40; j++) {
+    for (int i=0; i<25; i++) {
+        for (int j=0; j<50; j++) {
             if (board[i][j] == '1') {
                 if (headRow == i && headCol == j) {
                     return true;
@@ -46,11 +47,26 @@ bool Map::isCrashWithWall(Position head) {
     }
     return crash;
 }
+// static time_t input_time = time(NULL);
 
 void Map::getInput(Snake &snake) {
     // **** 입력을 안 하면 그냥 넘어감 halfdelay() ****
-    halfdelay(2);
+    halfdelay(1);
     userInput = getch();
+
+    // while (true) {
+    // cout << time(NULL) - input_time << endl;
+    // if (time(NULL) - input_time > 0.2) {
+    //     cout << "qwe" << endl;
+    //     return;
+    // }
+    // else {
+    //     // halfdelay(2);
+    //     // userInput = getch();
+    // }
+    // }
+    // input_time = time(NULL);
+
     if (userInput == KEY_UP) {
         if (snake.getDirection() != 'd') {
             snake.setDirection('u');
@@ -143,8 +159,8 @@ void Map::updateSnake(Snake &snake) {
 }
 
 void Map::printMap() {
-    for (int i=0; i<20; i++) {
-        for (int j=0; j<40; j++) {
+    for (int i=0; i<25; i++) {
+        for (int j=0; j<50; j++) {
             cout << board[i][j];
         }
         cout << endl;

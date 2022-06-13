@@ -9,6 +9,8 @@
 using namespace std;
 // 방향키 input은 전역변수로
 int userInput;
+int appleCount;
+int poisonCount;
 
 int main() {
     Map *map = new Map();
@@ -33,6 +35,8 @@ int main() {
     while (true) {
         map->updateSnake(*snake);
         map->getInput(*snake);
+        map->generateApple(*snake);
+        map->generatePoison(*snake);
     }
     getch();
     endwin();

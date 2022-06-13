@@ -5,6 +5,8 @@ using namespace std;
 
 class Map {
 private:
+    pair<int, int> appleLocation;
+    pair<int, int> poisonLocation;
     char board[25][50] = {
         {'2','2','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','2','2'},
         {'1','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','1'},
@@ -40,4 +42,6 @@ public:
     void getInput(Snake &snake);
     void printMap();
     bool isCrashWithWall(Position head);
+    void generateApple(Snake &snake);
+    void generatePoison(Snake &snake);
 };

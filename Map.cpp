@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string>
 using namespace std;
 
 extern int userInput;
@@ -19,6 +20,9 @@ time_t appleStart;
 time_t poisonStart;
 time_t gateStart = time(NULL);
 bool findWall = false;
+bool isPassing = false;
+char outDirection;
+bool exit2;
 
 
 void Map::initMap() {
@@ -46,19 +50,9 @@ void Map::initMap() {
 }
 
 bool Map::isCrashWithWall(Position head) {
-    bool crash = false;
     int headRow = head.row;
     int headCol = head.col;
-    for (int i=0; i<25; i++) {
-        for (int j=0; j<50; j++) {
-            if (board[i][j] == '1') {
-                if (headRow == i && headCol == j) {
-                    return true;
-                }
-            }
-        }
-    }
-    return crash;
+    return board[headRow][headCol] == '1';
 }
 // static time_t input_time = time(NULL);
 
@@ -66,19 +60,6 @@ void Map::getInput(Snake &snake) {
     // **** 입력을 안 하면 그냥 넘어감 halfdelay() ****
     halfdelay(1);
     userInput = getch();
-
-    // while (true) {
-    // cout << time(NULL) - input_time << endl;
-    // if (time(NULL) - input_time > 0.2) {
-    //     cout << "qwe" << endl;
-    //     return;
-    // }
-    // else {
-    //     // halfdelay(2);
-    //     // userInput = getch();
-    // }
-    // }
-    // input_time = time(NULL);
 
     if (userInput == KEY_UP) {
         if (snake.getDirection() != 'd') {
@@ -164,81 +145,79 @@ tuple<int, int, char> Map::checkFuture(int r, int c, char dir) {
 }
 
 void Map::updateSnake(Snake &snake) {
+    if (snake.getDirection() == 'l') {
+        snake.location.insert(snake.location.begin(), Position(snake.location[0].row, snake.location[0].col - 2));
+    }
+    else if (snake.getDirection() == 'r') {
+        snake.location.insert(snake.location.begin(), Position(snake.location[0].row, snake.location[0].col + 2));
+    }
+    else if (snake.getDirection() == 'u') {
+        snake.location.insert(snake.location.begin(), Position(snake.location[0].row - 1, snake.location[0].col));
+    }
+    else if (snake.getDirection() == 'd') {
+        snake.location.insert(snake.location.begin(), Position(snake.location[0].row + 1, snake.location[0].col));
+    }
+    snake.location.pop_back();
+
     if (snake.location[0].row == gateRow1 && snake.location[0].col == gateCol1 || snake.location[0].row == gateRow2 && snake.location[0].col == gateCol2) {
+        isPassing = true;
         if (snake.location[0].row == gateRow1 && snake.location[0].col == gateCol1) {
+            exit2 = true;
             tuple<int, int, char> temp;
             temp = checkFuture(gateRow2, gateCol2, snake.getDirection());
             snake.location.insert(snake.location.begin(), Position(get<0>(temp), get<1>(temp)));
             snake.setDirection(get<2>(temp));
-            // if (snake.getDirection() == 'l') {
-            //     if (board[gateRow2][gateCol2-2] == '0') {
-            //         snake.location.insert(snake.location.begin(), Position(gateRow2, gateCol2-2));
-            //     }
-            //     else if (board[gateRow2-1][gateCol2] == '0') {
-            //         snake.location.insert(snake.location.begin(), Position(gateRow2-1, gateCol2));
-            //         snake.setDirection('u');
-            //     }
-            //     else if (board[gateRow2+1][gateCol2] == '0') {
-            //         snake.location.insert(snake.location.begin(), Position(gateRow2+1, gateCol2));
-            //         snake.setDirection('d');
-            //     }
-            //     else {
-            //         snake.location.insert(snake.location.begin(), Position(gateRow2, gateCol2+2));
-            //         snake.setDirection('r');
-            //     }
-            // }
-            // else if (snake.getDirection() == 'r') {
-            //     snake.location.insert(snake.location.begin(), Position(snake.location[0].row, snake.location[0].col + 2));
-            // }
-            // else if (snake.getDirection() == 'u') {
-            //     snake.location.insert(snake.location.begin(), Position(snake.location[0].row - 1, snake.location[0].col));
-            // }
-            // else if (snake.getDirection() == 'd') {
-            //     snake.location.insert(snake.location.begin(), Position(snake.location[0].row + 1, snake.location[0].col));
-            // }
-            snake.location.pop_back();
+            outDirection = get<2>(temp);
+            snake.location.erase(snake.location.begin()+1);
         }
         if (snake.location[0].row == gateRow2 && snake.location[0].col == gateCol2) {
+            exit2 = false;
             tuple<int, int, char> temp;
             temp = checkFuture(gateRow1, gateCol1, snake.getDirection());
             snake.location.insert(snake.location.begin(), Position(get<0>(temp), get<1>(temp)));
             snake.setDirection(get<2>(temp));
-            snake.location.pop_back();
+            outDirection = get<2>(temp);
+            snake.location.erase(snake.location.begin()+1);
         }
     }
-    else {
-        if (snake.getDirection() == 'l') {
-            snake.location.insert(snake.location.begin(), Position(snake.location[0].row, snake.location[0].col - 2));
+    if (isPassing) {
+        if (!exit2) {
+            if (outDirection == 'l' && board[gateRow1][gateCol1-2] == '8') {
+                isPassing = false;
+            } 
+            else if (outDirection == 'r' && board[gateRow1][gateCol1+2] == '8') {
+                isPassing = false;
+            } 
+            else if (outDirection == 'u' && board[gateRow1-1][gateCol1] == '8') {
+                isPassing = false;
+            } 
+            else if (outDirection == 'd' && board[gateRow1+1][gateCol1] == '8'){
+                isPassing = false;
+            }
         }
-        else if (snake.getDirection() == 'r') {
-            snake.location.insert(snake.location.begin(), Position(snake.location[0].row, snake.location[0].col + 2));
+        else {
+            if (outDirection == 'l' && board[gateRow2][gateCol2-2] == '8') {
+                isPassing = false;
+            } 
+            else if (outDirection == 'r' && board[gateRow2][gateCol2+2] == '8') {
+                isPassing = false;
+            } 
+            else if (outDirection == 'u' && board[gateRow2-1][gateCol2] == '8') {
+                isPassing = false;
+            } 
+            else if (outDirection == 'd' && board[gateRow2+1][gateCol2] == '8'){
+                isPassing = false;
+            }
         }
-        else if (snake.getDirection() == 'u') {
-            snake.location.insert(snake.location.begin(), Position(snake.location[0].row - 1, snake.location[0].col));
-        }
-        else if (snake.getDirection() == 'd') {
-            snake.location.insert(snake.location.begin(), Position(snake.location[0].row + 1, snake.location[0].col));
-        }
-        snake.location.pop_back();
     }
+
     if (snake.isCrashMySelf() || isCrashWithWall(snake.location[0])) {
         cout << "game Over" << endl;
         terminate();
     }
 
-
-    // paint head
     int r = snake.location[0].row;
     int c = snake.location[0].col;
-    // 머리가 아이템이랑 부딪혔나?
-    // int r = snake.location[0].row;
-    // int c = snake.location[0].col;
-    attron(COLOR_PAIR(4));
-    board[r][c] = '3';
-    board[r][c+1] = '3';
-    mvprintw(r, c, "3");
-    mvprintw(r, c+1, "3");
-    attroff(COLOR_PAIR(4));
 
     if (r == appleLocation.first && c == appleLocation.second) {
         snake.eatApple(appleLocation.first, appleLocation.second);
@@ -256,10 +235,31 @@ void Map::updateSnake(Snake &snake) {
         snake.eatPoison(poisonLocation.first, poisonLocation.second);
         poisonCount--;
     }
-    
+    // 머리 출력
+    r = snake.location[0].row;
+    c = snake.location[0].col;
+    // 머리가 아이템이랑 부딪혔나?
+    attron(COLOR_PAIR(4));
+    board[r][c] = '3';
+    board[r][c+1] = '3';
+    mvprintw(r, c, "3");
+    mvprintw(r, c+1, "3");
+    attroff(COLOR_PAIR(4));
 
     // 몸통 출력
-    for (int i=1; i<snake.getLength(); i++) {
+    // for (int i=1; i<snake.getLength(); i++) {
+    //     r = snake.location[i].row;
+    //     c = snake.location[i].col;
+    //     attron(COLOR_PAIR(5));
+    //     board[r][c] = '4'; 
+    //     board[r][c+1] = '4'; 
+    //     mvprintw(r, c, "4"); 
+    //     mvprintw(r, c+1, "4");
+    //     attroff(COLOR_PAIR(5));
+    // }
+
+    // 몸통에서 꼬리만 뺴고 출력
+    for (int i=1; i<snake.getLength()-1; i++) {
         r = snake.location[i].row;
         c = snake.location[i].col;
         attron(COLOR_PAIR(5));
@@ -269,15 +269,36 @@ void Map::updateSnake(Snake &snake) {
         mvprintw(r, c+1, "4");
         attroff(COLOR_PAIR(5));
     }
+    // 꼬리만 출략
+    r = snake.location[snake.location.size()-2].row;
+    c = snake.location[snake.location.size()-2].col;
+    attron(COLOR_PAIR(7));
+    board[r][c] = '8';
+    board[r][c+1] = '8';
+    mvprintw(r, c, "8");
+    mvprintw(r, c+1, "8");
+    attroff(COLOR_PAIR(7));
+
+
 
     refresh();
+    // // 잔상 삭제
+    // attron(COLOR_PAIR(1));
+    // board[r][c] = '0';
+    // board[r][c+1] = '0';
+    // mvprintw(r, c, "0"); 
+    // mvprintw(r, c+1, "0");
+    // attroff(COLOR_PAIR(1));
     // 잔상 삭제
+    r = snake.location[snake.location.size()-1].row;
+    c = snake.location[snake.location.size()-1].col;
     attron(COLOR_PAIR(1));
     board[r][c] = '0';
     board[r][c+1] = '0';
     mvprintw(r, c, "0"); 
     mvprintw(r, c+1, "0");
     attroff(COLOR_PAIR(1));
+    
 
     if (snake.getLength() == 4) {
         cout << "GAME OVER" << endl;
@@ -411,8 +432,7 @@ void Map::generateGate() {
     srand(time(NULL));
     int x, y;
     time_t now = time(NULL);
-
-    if (now - gateStart > 10) {
+    if (now - gateStart > 5 && !isPassing) {
         attron(COLOR_PAIR(2));
         board[gateRow1][gateCol1] = '1';
         board[gateRow1][gateCol1+1] = '1';

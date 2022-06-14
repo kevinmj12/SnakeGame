@@ -9,13 +9,14 @@ Snake::Snake(char dir) {
     location.push_back(Position(3, 28));
     location.push_back(Position(3, 30));
     location.push_back(Position(3, 32));
+    location.push_back(Position(3, 34));
 }
 bool Snake::isCrashMySelf() {
     bool crash = false;
     int headRow = location[0].row;
     int headCol = location[0].col;
 
-    for (int i=1; i<length+1; i++) {
+    for (int i=1; i<length; i++) {
         if (headRow == location[i].row && headCol == location[i].col) {
             return true;
         }

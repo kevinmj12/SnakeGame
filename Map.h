@@ -1,10 +1,15 @@
 #include <iostream>
 #include "Snake.h"
 #include <ncurses.h>
+#include <tuple>
 using namespace std;
 
 class Map {
-private:
+public:
+    int gateRow1;
+    int gateCol1;
+    int gateRow2;
+    int gateCol2;
     pair<int, int> appleLocation;
     pair<int, int> poisonLocation;
     char board[25][50] = {
@@ -35,7 +40,6 @@ private:
         {'2','2','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','2','2'}
     };
 
-public:
     void initMap();
     void update(char board[][50]);
     void updateSnake(Snake &snake);
@@ -44,4 +48,6 @@ public:
     bool isCrashWithWall(Position head);
     void generateApple(Snake &snake);
     void generatePoison(Snake &snake);
+    void generateGate();
+    tuple<int, int, char> checkFuture(int r, int c, char dir);
 };

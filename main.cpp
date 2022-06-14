@@ -24,6 +24,7 @@ int main() {
     init_pair(3, COLOR_CYAN, COLOR_CYAN); // wall corner - cyan
     init_pair(4, COLOR_YELLOW, COLOR_YELLOW); // snake head
     init_pair(5, COLOR_GREEN, COLOR_GREEN); // snake body
+    init_pair(6, COLOR_MAGENTA, COLOR_MAGENTA); // snake body
     
     keypad(stdscr, TRUE);
     curs_set(0);
@@ -37,6 +38,7 @@ int main() {
         map->getInput(*snake);
         map->generateApple(*snake);
         map->generatePoison(*snake);
+        map->generateGate();
     }
     getch();
     endwin();

@@ -7,7 +7,7 @@ class Snake {
 private:
     int locationRow;
     int locationCol;
-    int length = 5;
+    int length = 6;
     char direction;
     // vector<Position> location;
 public:
